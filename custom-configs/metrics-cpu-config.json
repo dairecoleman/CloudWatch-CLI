@@ -1,0 +1,13 @@
+{
+  "metrics": {
+    "metrics_collected": {
+      "cpu": {
+        "measurement": [
+          "usage_active"
+        ],
+        "totalcpu": true
+      }
+     }
+   }
+ }
+

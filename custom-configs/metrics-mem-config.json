@@ -1,0 +1,16 @@
+{
+  "metrics": {
+    "metrics_collected": {
+      "mem": {
+         "measurement": [ 
+           "available",
+		   "available_percent",
+		   "free",
+		   "total",
+		   "used",
+		   "used_percent"
+        ]
+      }
+    }
+  }
+}
