@@ -90,7 +90,7 @@ if [ ! -z "${INSTALL}" ]; then
 		echo no CloudWatch Agent installed, attempting to install
 		wget https://amazoncloudwatch-agent.s3.amazonaws.com/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb
 		sudo dpkg -i -E ./amazon-cloudwatch-agent.deb
-		if -d /opt/aws/amazon-cloudwatch-agent/bin/custom-configs && /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a status; then
+		if /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a status; then
 			echo CloudWatch Agent successfully installed
 		else
 			echo There was a problem installing Cloudwatch Agent
