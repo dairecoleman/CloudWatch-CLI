@@ -28,6 +28,10 @@ while [[ $# -gt 0 ]]; do
       INSTALL=YES
       shift
       ;;
+	--status)
+	  STATUS=YES
+	  shift
+	  ;;
     --start)
 	  START=YES
   	  shift
@@ -99,9 +103,14 @@ if [ ! -z "${INSTALL}" ]; then
 fi
 
 # check required packages are installed and working as expected
-if  ! (aws --version && /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a status) ; then
+if  ! (aws --version >/dev/null && /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a status >/dev/null) ; then
 	echo "Need to install aws cli and cloudwatch before using any other features of this script. Do so with --install option."
 	exit 1
+fi
+
+# Check the status of the CloudWatch agent.
+if [ ! -z "${STATUS}" ]; then
+	/opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a status 
 fi
 
 # Start the CloudWatch agent.
