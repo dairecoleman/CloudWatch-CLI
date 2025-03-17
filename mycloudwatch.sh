@@ -9,6 +9,7 @@ Options:
 	   --install                       Download and install the agent if it is not already installed.
 	   --start                         Start the CloudWatch agent.
 	   --stop                          Stop the CloudWatch agent.
+	   --status                        Query the status of the agent for it's status, starttime, configstatus and version.
 	   --track-logs file1 file2 fileN  Configures the agent to collect all log files specified.
 	   --untrack-logs                  Configures the agent to stop collecting any log files.
 	   --track-cpu                     Configures the agent to collect CPU usage metrics.
