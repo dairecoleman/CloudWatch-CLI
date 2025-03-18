@@ -2,7 +2,7 @@
 __help="
 command-line shell script which automates collection of logs and metrics in an Ubuntu machine.
 
-Usage: $(basename $0) [OPTIONS]
+Usage: $(basename "$0") [OPTIONS]
 
 Options:
 	-h,--help                          Displays this message.
@@ -44,7 +44,7 @@ while [[ $# -gt 0 ]]; do
     --track-logs)
       TRACKLOGS=YES
 	  shift
-	  logfiles=($@)
+	  logfiles=("$@")
 	  shift $#
       ;;
     --untrack-logs)
@@ -67,7 +67,7 @@ while [[ $# -gt 0 ]]; do
       UNTRACKMEM=YES
 	  shift
 	  ;;
-	  -*|--*)
+	  -*)
       echo "Unknown option $1"
       exit 1
 	  ;;
@@ -75,7 +75,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 # install option
-if [ ! -z "${INSTALL}" ]; then
+if [ -n "${INSTALL}" ]; then
 	if aws --version; then
 		echo aws cli version found
 	else
@@ -110,24 +110,24 @@ if  ! (aws --version >/dev/null && /opt/aws/amazon-cloudwatch-agent/bin/amazon-c
 fi
 
 # Check the status of the CloudWatch agent.
-if [ ! -z "${STATUS}" ]; then
+if [ -n "${STATUS}" ]; then
 	/opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a status 
 fi
 
 # Start the CloudWatch agent.
-if [ ! -z "${START}" ]; then
-	sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m onPremise -s -c file:$CW_CLI_TOOL_CUSTOM_CONFIGS_PATH/custom-configs/user-config.json
+if [ -n "${START}" ]; then
+	sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m onPremise -s -c file:"$CW_CLI_TOOL_CUSTOM_CONFIGS_PATH"/custom-configs/user-config.json
 	mycloudwatch --status
 fi
 
 # Stop the CloudWatch agent.
-if [ ! -z "${STOP}" ]; then
+if [ -n "${STOP}" ]; then
 	sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -m onPremise -a stop
   	mycloudwatch --status
 fi
 
 # Configures the agent to collect all log files specified. in $logfiles
-if [ ! -z "${TRACKLOGS}" ]; then
+if [ -n "${TRACKLOGS}" ]; then
 	__logs_config_json_template='
 		{
 		"logs": {
@@ -142,43 +142,40 @@ if [ ! -z "${TRACKLOGS}" ]; then
 	# put files in __logs_config_json_template and save as ./custom-configs/logs-config.json
 	for file in "${logfiles[@]}"
 	do
-		if [ -f $file ]; then
+		if [ -f "$file" ]; then
     		__logs_config_json_template=$(echo "$__logs_config_json_template" | jq --arg file "$file" '.logs.logs_collected.files.collect_list += [{"file_path": $file}]')
 		else
 			echo "$file is not a file, won't be configured to tracking" 
 		fi
 
 	done
-	echo $__logs_config_json_template > $CW_CLI_TOOL_CUSTOM_CONFIGS_PATH/custom-configs/logs-config.json
+	echo "$__logs_config_json_template" > "$CW_CLI_TOOL_CUSTOM_CONFIGS_PATH"/custom-configs/logs-config.json
 	
 	# configure cloudagent with it
-	sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a append-config -m onPremise -s -c file:$CW_CLI_TOOL_CUSTOM_CONFIGS_PATH/custom-configs/logs-config.json
+	sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a append-config -m onPremise -s -c file:"$CW_CLI_TOOL_CUSTOM_CONFIGS_PATH"/custom-configs/logs-config.json
 fi
 
 # Configures the agent to stop collecting any log files.
-if [ ! -z "${UNTRACKLOGS}" ]; then
-	sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a remove-config -m onPremise -s -c file:$CW_CLI_TOOL_CUSTOM_CONFIGS_PATH/custom-configs/logs-config.json
+if [ -n "${UNTRACKLOGS}" ]; then
+	sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a remove-config -m onPremise -s -c file:"$CW_CLI_TOOL_CUSTOM_CONFIGS_PATH"/custom-configs/logs-config.json
 fi
 
 # Configures the agent to collect CPU usage metrics.
-if [ ! -z "${TRACKCPU}" ]; then
-	sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a append-config -m onPremise -s -c file:$CW_CLI_TOOL_CUSTOM_CONFIGS_PATH/custom-configs/metrics-cpu-config.json
+if [ -n "${TRACKCPU}" ]; then
+	sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a append-config -m onPremise -s -c file:"$CW_CLI_TOOL_CUSTOM_CONFIGS_PATH"/custom-configs/metrics-cpu-config.json
 fi
 
 # Configures the agent to stop collecting CPU usage metrics.
-if [ ! -z "${UNTRACKCPU}" ]; then
-	sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a remove-config -m onPremise -s -c file:$CW_CLI_TOOL_CUSTOM_CONFIGS_PATH/custom-configs/metrics-cpu-config.json
+if [ -n "${UNTRACKCPU}" ]; then
+	sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a remove-config -m onPremise -s -c file:"$CW_CLI_TOOL_CUSTOM_CONFIGS_PATH"/custom-configs/metrics-cpu-config.json
 fi
 
 # Configures the agent to collect memory usage metrics.
-if [ ! -z "${TRACKMEM}" ]; then
-	sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a append-config -m onPremise -s -c file:$CW_CLI_TOOL_CUSTOM_CONFIGS_PATH/custom-configs/metrics-mem-config.json
+if [ -n "${TRACKMEM}" ]; then
+	sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a append-config -m onPremise -s -c file:"$CW_CLI_TOOL_CUSTOM_CONFIGS_PATH"/custom-configs/metrics-mem-config.json
 fi
 
 # Configures the agent to stop collecting memory usage metrics.
-if [ ! -z "${UNTRACKMEM}" ]; then
-	sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a remove-config -m onPremise -s -c file:$CW_CLI_TOOL_CUSTOM_CONFIGS_PATH/custom-configs/metrics-mem-config.json
+if [ -n "${UNTRACKMEM}" ]; then
+	sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a remove-config -m onPremise -s -c file:"$CW_CLI_TOOL_CUSTOM_CONFIGS_PATH"/custom-configs/metrics-mem-config.json
 fi
-
-
-
