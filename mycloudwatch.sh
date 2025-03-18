@@ -5,7 +5,7 @@ command-line shell script which automates collection of logs and metrics in an U
 Usage: $(basename $0) [OPTIONS]
 
 Options:
-	-h,--help                          Displays this message
+	-h,--help                          Displays this message.
 	   --install                       Download and install the agent if it is not already installed.
 	   --start                         Start the CloudWatch agent.
 	   --stop                          Stop the CloudWatch agent.
@@ -117,11 +117,13 @@ fi
 # Start the CloudWatch agent.
 if [ ! -z "${START}" ]; then
 	sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m onPremise -s -c file:$CW_CLI_TOOL_CUSTOM_CONFIGS_PATH/custom-configs/user-config.json
+	mycloudwatch --status
 fi
 
 # Stop the CloudWatch agent.
 if [ ! -z "${STOP}" ]; then
 	sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -m onPremise -a stop
+  	mycloudwatch --status
 fi
 
 # Configures the agent to collect all log files specified. in $logfiles
