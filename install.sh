@@ -11,8 +11,9 @@ CW_CLI_TOOL_PATH="/usr/local/bin/mycloudwatch"
 echo -n "$"
 echo "CW_CLI_TOOL_PATH set to $CW_CLI_TOOL_PATH"
 echo -n "Making current directory the directory for storing any custom configs: "
-echo `pwd`
-export CW_CLI_TOOL_CUSTOM_CONFIGS_PATH=`pwd`
+echo "$(pwd)"
+CW_CLI_TOOL_CUSTOM_CONFIGS_PATH="$(pwd)"
+export CW_CLI_TOOL_CUSTOM_CONFIGS_PATH
 
 #  making the cli executable and on path , providing initial instruction
 echo "Copying CLI tool to $CW_CLI_TOOL_PATH and making executable"
@@ -21,4 +22,3 @@ sudo chmod +x $CW_CLI_TOOL_PATH
 echo -e "\n"
 echo "Run 'mycloudwatch --help' to get started"
 echo -e "\n"
-
