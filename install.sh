@@ -21,4 +21,5 @@ sudo chmod +x $CW_CLI_TOOL_PATH
 echo -e "\n"
 echo "Run 'mycloudwatch --help' to get started"
 echo -e "\n"
+echo -e "\n"
 
